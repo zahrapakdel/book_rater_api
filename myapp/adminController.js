@@ -130,27 +130,50 @@ function getCategory(){
 
 
 
-function addPost(_title,_description,_properties,_cover,_like_count,_share_count,_comment_count,_is_archive,_type,_category,_publisher,_artist,_is_offer,_publish_date ){
-    return new promise(function(resolve){
-        var posts = Parse.Object.extend("Post");
-        var post = new posts();
+function addPost(_title,_description,_properties,_like_count,_share_count,_comment_count,_is_archive,_type,_category,_publisher,_artist,_is_offer,_publish_date,_cover ){
 
+    return new promise(function(resolve){
+        var Post = Parse.Object.extend("Post");
+        var post = new Post();
+        var parseFile = new Parse.File('cover', _cover);
+        console.log(parseFile);
+        var artists = Parse.Object.extend("Artist");
+        var artist = new artists();
+        var query = new Parse.Query(artist);
+        query.equalTo("title", _artist);
+        query.find().then(function (results) {
+                post.set("artist",results[0]);
+                post.save();
+        })
+        var Category = Parse.Object.extend("Category");
+        var category = new Category();
+        var query = new Parse.Query(category);
+        query.equalTo("title", _category);
+        query.find().then(function (results) {
+            post.set("category",results[0]);
+            post.save();
+        })
+        var Publisher = Parse.Object.extend("Publisher");
+        var publisher = new Publisher();
+        var query = new Parse.Query(publisher);
+        query.equalTo("title", _publisher);
+        query.find().then(function (results) {
+            post.set("publisher",results[0]);
+            post.save();
+        })
         post.save({
             title:_title,
             description:_description,
             properties:_properties,
-            cover:_cover,
-            like_count:_like_count,
-            share_count:_share_count,
-            comment_count:_comment_count,
-            is_archive:_is_archive,
+            like_count:0,
+            share_count:0,
+            comment_count:0,
+            is_archive:false,
             type:_type,
-            category:_category,
-            publisher:_publisher,
-            artist:_artist,
             is_offer:_is_offer,
-            publish_date:_publish_date
-
+           // publish_date:_publish_date,
+            cover:parseFile,
+        
         }, {
             success: function(result) {
                 resolve(result)
@@ -242,6 +265,7 @@ function updatePost(_id ,_new_title, _new_description, _new_properties, _new_cov
         query.equalTo("objectId", _id);
         query.find().then(function (results) {
             if(_new_title){
+                
                 results[0].set("title",_new_title);
                 results[0].save();
             }
@@ -403,9 +427,9 @@ function deleteArtist(_id){
 
 function deletePublisher(_id){
     return new promise(function(resolve){
-        var categories = Parse.Object.extend("Category");
-        var category = new categories();
-        var query = new Parse.Query(category);
+        var publishers = Parse.Object.extend("Publisher");
+        var publisher = new publishers();
+        var query = new Parse.Query(publisher);
         query.equalTo("objectId", _id)
         query.find().then(function (results) {
             results[0].destroy({
@@ -425,9 +449,9 @@ function deletePublisher(_id){
 function deleteCategory(id){
 
     return new promise(function(resolve){
-        var Projects = Parse.Object.extend("Projects");
-        var Project = new Projects();
-        var query = new Parse.Query(Project);
+        var categories = Parse.Object.extend("Category");
+        var category = new categories();
+        var query = new Parse.Query(category);
         query.equalTo("objectId", id)
         query.find().then(function (results) {
             results[0].destroy({
