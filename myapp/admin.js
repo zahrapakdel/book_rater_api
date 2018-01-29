@@ -76,15 +76,26 @@ app.get('/api/v1/artist',function(req,res){
 
 var multipartMiddleware = multipart();
 app.post('/api/v1/post/insert',multipartMiddleware,function(req,res){
-    
-    Element.addPost(req.body.title,req.body.description,req.body.properties,req.body.like_count,req.body.share_count,req.body.comment_count,req.body.is_archive,req.body.type,req.body.category,req.body.publisher,req.body.artist,req.body.is_offer,req.body.publish_date ,req.files.file).then(function(result) {
+    Element.addPost(
+        req.body.title,
+        req.body.description,
+        req.body.properties,
+        req.body.like_count,
+        req.body.share_count,
+        req.body.comment_count,
+        req.body.is_archive,
+        req.body.type,
+        req.body.category,
+        req.body.publisher,
+        req.body.artist,
+        req.body.is_offer,
+        req.body.publish_date,
+        req.body.cover).then(function(result) {
         res.send(result);
-        console.log(result);
     } );
     
-    console.log(req.files)
-
-
+    /*var e= Element.base64_encode(req.files.cover)
+    console.log(e)*/
 });
 
 app.post('/api/v1/category/insert',function(req,res){
@@ -128,7 +139,7 @@ app.post('/api/v1/post/edit',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.updatePost(req.body.objectId,req.body.title,req.body.description,req.body.properties,req.body.cover,req.body.is_archive,req.body.type,req.body.category,req.body.publisher,req.body.artist,req.body.is_offer ).then(function(result) {
+        Element.updatePost(req.body.objectId,req.body.title,req.body.description,req.body.properties,req.body.cover,req.body.is_archive,req.body.category,req.body.publisher,req.body.artist,req.body.is_offer ).then(function(result) {
             res.send(result);
         } );
     });
