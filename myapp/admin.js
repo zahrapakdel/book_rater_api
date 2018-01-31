@@ -23,6 +23,20 @@ Parse.initialize("test","");
 app.use('/dashboard', dashboard);
 app.use(bodyParser.json());
 
+
+app.post('/api/v1/users/login',function(req,res){
+    var body = '';
+    req.on('data',function(data) { body += data; });
+    req.on('end', function(data) {
+        req.body = JSON.parse(body);
+        Element.login(req.body.username,req.body.password).then(function(result) {
+            res.send(result);
+        } );
+    });
+});
+
+
+
 app.get('/api/v1/Posts',function(req,res){
     Element.getPosts().then(function(result) {
         res.send(result);
@@ -94,8 +108,6 @@ app.post('/api/v1/post/insert',multipartMiddleware,function(req,res){
         res.send(result);
     } );
     
-    /*var e= Element.base64_encode(req.files.cover)
-    console.log(e)*/
 });
 
 app.post('/api/v1/category/insert',function(req,res){

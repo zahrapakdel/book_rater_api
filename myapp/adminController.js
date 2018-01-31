@@ -2,7 +2,6 @@
  * Created by Zahra on 13/01/2018.
  */
 var Parse = require('parse/node');
-var fs = require('fs');
 var promise = require('promise');
 Parse.serverURL = "http://localhost:1337/parse";
 Parse.initialize("test","");
@@ -27,8 +26,29 @@ module.exports={
     deletePost:deletePost,
     deleteArtist:deleteArtist,
     deletePublisher:deletePublisher,
-    deleteCategory:deleteCategory
+    deleteCategory:deleteCategory,
+    login:login,
+
 }
+
+function login(_username,_password){
+    return new promise(function(resolve){
+        var User = Parse.Object.extend("User");
+        var user = new User();
+        var usernameQuery = new Parse.Query(user);
+        usernameQuery.equalTo("username", _username);
+        usernameQuery.find().then(function(results) {
+            var passwordQuery = new Parse.Query(results);
+            passwordQuery.equalTo("password", _password);
+            passwordQuery.find().then(function () {
+                resolve(results)
+              })
+            
+        });
+    })
+}
+
+
 
 
 function getPosts(){
@@ -151,19 +171,20 @@ function addPost(_title,
         
         var Artist = Parse.Object.extend("Artist");
         var artist = Artist.createWithoutData(_artist);
-        post.set("artist",artist);
-        post.save();
+        
+        //post.set("artist",artist);
+
        
         var Category = Parse.Object.extend("Category");
         var category = Category.createWithoutData(_category);
-        post.set("category",category);
-        post.save();
+       // post.set("category",category);
+
         
         
         var Publisher = Parse.Object.extend("Publisher");
         var publisher = Publisher.createWithoutData(_publisher);
-        post.set("publisher",publisher);
-        post.save();
+     /*   post.set("publisher",publisher);*/
+
         
         var like_count=parseInt(_like_count);
         var share_count=parseInt(_share_count);
@@ -171,36 +192,56 @@ function addPost(_title,
         var is_archive = (_is_archive =! 'false');
         
         var file = new Parse.File("mypic.jpg", { base64: _cover });
-            file.save({
-                success: function (file) {
-                    console.log('File saved, now saving product with file reference...');
-                    post.set("title", _title);
-                    post.set("description", _description);
-                    post.set("properties", _properties);
-                    post.set("like_count", like_count);
-                    post.set("share_count", share_count);
-                    post.set("comment_count", comment_count);
-                    post.set("is_archive", is_archive);
-                    post.set("type", _type);
-                    post.set("is_offer", _is_offer);
-                    post.set("cover", file);
 
 
-                    post.save(null, {
-                        success: function (result) {
-                            resolve(result)
-                            console.log('success');
-                        },
-                        error: function (error) {
+        post.save({
+            title:_title,
+            description:_description,
+            properties: _properties,
+            like_count: like_count,
+            share_count: share_count,
+            comment_count: comment_count,
+            is_archive: is_archive,
+            type: _type,
+            artist:artist,
+            category:category,
+            publisher:publisher,
+            is_offer: _is_offer,
+            cover: file
+            
+        }, {
+            success: function(result) {
+                resolve(result)
+                console.log('success');
+            },
+            error: function(Post, error) {
+                console.log(error);
+            }
+        });
 
-                            console.log('Failed to create new object, with error code: ' + error.description);
-                        }
-                    });
-                },
-                error: function (error) {
-                    console.log(error);
-                }
-            });
+
+     /*   post.set("title", _title);
+        post.set("description", _description);
+        post.set("properties", _properties);
+        post.set("like_count", like_count);
+        post.set("share_count", share_count);
+        post.set("comment_count", comment_count);
+        post.set("is_archive", is_archive);
+        post.set("type", _type);
+        post.set("is_offer", _is_offer);
+        post.set("cover", file);*/
+
+
+       /* post.save(null, {
+                    success: function (result) {
+                             resolve(result)
+                             console.log('success');
+                         },
+                         error: function (error) {
+                             console.log('Failed to create new object, with error code: ' + error.description);
+                         }
+                    });*/
+
     })
 
 }
