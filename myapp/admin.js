@@ -29,7 +29,7 @@ app.post('/api/v1/users/login',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.login(req.body.username,req.body.password).then(function(result) {
+        Element.login(req.body.email,req.body.password).then(function(result) {
             res.send(result);
         } );
     });
@@ -89,25 +89,32 @@ app.get('/api/v1/artist',function(req,res){
 });
 
 var multipartMiddleware = multipart();
-app.post('/api/v1/post/insert',multipartMiddleware,function(req,res){
-    Element.addPost(
-        req.body.title,
-        req.body.description,
-        req.body.properties,
-        req.body.like_count,
-        req.body.share_count,
-        req.body.comment_count,
-        req.body.is_archive,
-        req.body.type,
-        req.body.category,
-        req.body.publisher,
-        req.body.artist,
-        req.body.is_offer,
-        req.body.publish_date,
-        req.body.cover).then(function(result) {
-        res.send(result);
-    } );
-    
+app.post('/api/v1/post/insert',function(req,res){
+
+    var body = '';
+    req.on('data',function(data) { body += data; });
+    req.on('end', function(data) {
+        req.body = JSON.parse(body);
+        Element.addPost(
+            req.body.title,
+            req.body.description,
+            req.body.properties,
+            req.body.like_count,
+            req.body.share_count,
+            req.body.comment_count,
+            req.body.is_archive,
+            req.body.type,
+            req.body.category,
+            req.body.publisher,
+            req.body.artist,
+            req.body.is_offer,
+            req.body.publish_date,
+            req.body.cover).then(function(result) {
+            res.send(result);
+        } );
+
+    });
+
 });
 
 app.post('/api/v1/category/insert',function(req,res){
@@ -151,7 +158,16 @@ app.post('/api/v1/post/edit',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.updatePost(req.body.objectId,req.body.title,req.body.description,req.body.properties,req.body.cover,req.body.is_archive,req.body.category,req.body.publisher,req.body.artist,req.body.is_offer ).then(function(result) {
+        
+        Element.updatePost(req.body.objectId,
+            req.body.title,
+            req.body.description,
+            req.body.properties,
+            req.body.category,
+            req.body.publisher,
+            req.body.artist
+            ).then(function(result) {
+            
             res.send(result);
         } );
     });
