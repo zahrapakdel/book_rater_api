@@ -3,7 +3,6 @@
  */
 var express= require('express');
 var bodyParser=require('body-parser');
-var multipart = require('connect-multiparty');
 var app =express();
 var Element=require('../myapp/adminController');
 var ParseDashboard = require('parse-dashboard');
@@ -88,13 +87,31 @@ app.get('/api/v1/artist',function(req,res){
     } );
 });
 
-var multipartMiddleware = multipart();
+
+app.get('/api/v1/comment',function(req,res){
+    Element.getComments().then(function(result) {
+        res.send(result);
+    } );
+});
+
+app.post('/api/v1/comment/archive',function(req,res){
+    var body = '';
+    req.on('data',function(data) { body += data; });
+    req.on('end', function(data) {
+        req.body = JSON.parse(body);
+        Element.archiveComment(req.body.objectId).then(function(result) {
+            res.send(result);
+        } );
+    });
+});
+
 app.post('/api/v1/post/insert',function(req,res){
 
     var body = '';
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
+        
         Element.addPost(
             req.body.title,
             req.body.description,
@@ -108,6 +125,7 @@ app.post('/api/v1/post/insert',function(req,res){
             req.body.publisher,
             req.body.artist,
             req.body.is_offer,
+            req.body.notification,
             req.body.publish_date,
             req.body.cover).then(function(result) {
             res.send(result);

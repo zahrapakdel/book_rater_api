@@ -3,6 +3,7 @@
  */
 var Parse = require('parse/node');
 var promise = require('promise');
+var https = require('https');
 Parse.serverURL = "http://localhost:1337/parse";
 Parse.initialize("test","");
 
@@ -28,8 +29,45 @@ module.exports={
     deletePublisher:deletePublisher,
     deleteCategory:deleteCategory,
     login:login,
+    sendNotification:sendNotification,
+    getComments:getComments,
+    archiveComment:archiveComment,
 
 }
+
+
+
+ function sendNotification (data) {
+    var headers = {
+        "Content-Type": "application/json; charset=utf-8",
+        "Authorization": "Basic MjgxYzg0ZDItMWZiMy00YWZhLWJmYzItMjYxYTQxODAwY2Q3"
+    };
+
+    var options = {
+        host: "onesignal.com",
+        port: 443,
+        path: "/api/v1/notifications",
+        method: "POST",
+        headers: headers
+    };
+
+    var req = https.request(options, function(res) {
+        res.on('data', function(data) {
+            console.log("Response:");
+            console.log(JSON.parse(data));
+        });
+    });
+
+    req.on('error', function(e) {
+        console.log("ERROR:");
+        console.log(e);
+    });
+
+    req.write(JSON.stringify(data));
+    req.end();
+};
+
+
 
 function login(_username,_password){
     return new promise(function(resolve){
@@ -46,7 +84,6 @@ function login(_username,_password){
 
     })
 }
-
 
 
 
@@ -115,8 +152,6 @@ function getPostById(_id){
 }
 
 
-
-
 function getArtist(){
     return new promise(function(resolve){
         var artists = Parse.Object.extend("Artist");
@@ -151,9 +186,6 @@ function getCategory(){
 }
 
 
-
-
-
 function addPost(_title,
                  _description,
                  _properties,
@@ -166,6 +198,7 @@ function addPost(_title,
                  _publisher,
                  _artist,
                  _is_offer,
+                 _notification,
                  _publish_date,
                  _cover ){
 
@@ -211,6 +244,35 @@ function addPost(_title,
             
         }, {
             success: function(result) {
+                
+
+                if(_notification){
+                    if(_type=="book"){
+                        _type="کتاب"
+                    }
+                    if(_type=="movie"){
+                        _type="فیلم"
+                    }
+                    if(_type=="theater"){
+                        _type="تئاتر"
+                    }
+                    if(_type=="music"){
+                        _type="موسیقی"
+                    }
+                    var heading=_type+" جدید در تاپیک"
+                    var subtitle= _type+" "+_title+" اضافه شد"
+                    var content=_description.substring(0,100)+"...";
+                    var message = {
+                        app_id: "a4a72359-3c2c-4599-b4d1-316a01aa5c44",
+                        headings:{"en": heading},
+                        subtitle:{"en": subtitle},
+                        contents: {"en": content},
+                        included_segments: ["test"]
+                    };
+
+                    sendNotification(message);
+                    
+                }
 
                 var query = new Parse.Query(post);
                 query.equalTo("objectId",result.id);
@@ -521,6 +583,34 @@ function deleteCategory(id){
                 }
             });
         })
+
+    })
+
+}
+
+function getComments(){
+    return new promise(function(resolve){
+        var Comment = Parse.Object.extend("Comment");
+        var comment = new Comment();
+        var query = new Parse.Query(comment);
+        query.include('user');
+        query.find().then(function(results) {
+            resolve(results)
+        });
+    })
+}
+function archiveComment(_id){
+    return new promise(function(resolve){
+        var Comment = Parse.Object.extend("Comment");
+        var comment = new Comment();
+        var query = new Parse.Query(comment);
+        query.equalTo("objectId", _id)
+        query.find().then(function(results) {
+            results[0].save({
+                is_archive:true
+            })
+            resolve(results)
+        });
 
     })
 
