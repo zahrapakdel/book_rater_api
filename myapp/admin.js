@@ -183,7 +183,8 @@ app.post('/api/v1/post/edit',function(req,res){
             req.body.properties,
             req.body.category,
             req.body.publisher,
-            req.body.artist
+            req.body.artist,
+            req.body.is_archive
             ).then(function(result) {
             
             res.send(result);

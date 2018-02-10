@@ -240,6 +240,7 @@ function addPost(_title,
             category:category,
             publisher:publisher,
             is_offer: _is_offer,
+            publish_date:_publish_date,
             cover: file
             
         }, {
@@ -371,7 +372,8 @@ function updatePost(_id ,
                     _new_properties,
                     _new_category,
                     _new_publisher,
-                    _new_artist
+                    _new_artist,
+                    _new_is_archive
                     ) {
     return new promise(function (resolve) {
         var posts = Parse.Object.extend("Post");
@@ -420,11 +422,11 @@ function updatePost(_id ,
            /* if(_new_is_offer){
                 results[0].set("is_offer",_new_is_offer);
                 results[0].save();
-            }
+            }*/
             if(_new_is_archive){
                 results[0].set("is_archive",_new_is_archive);
                 results[0].save();
-            }*/
+            }
             resolve(results)
         })
     })
