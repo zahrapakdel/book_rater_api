@@ -16,6 +16,9 @@ module.exports={
     getArtist:getArtist,
     getPublisher:getPublisher,
     getCategory:getCategory,
+    getArtistByType:getArtistByType,
+    getPublisherByType:getPublisherByType,
+    getCategoryByType:getCategoryByType,
     addPost:addPost,
     addArtist:addArtist,
     addPublisher:addPublisher,
@@ -30,8 +33,14 @@ module.exports={
     deleteCategory:deleteCategory,
     login:login,
     sendNotification:sendNotification,
-    getComments:getComments,
+    getAllComments:getAllComments,
+    getArchivedComments:getArchivedComments,
+    getPublicComments:getPublicComments,
     archiveComment:archiveComment,
+    unArchiveComment:unArchiveComment,
+    publisherAnalytics:publisherAnalytics,
+    artistAnalytics:artistAnalytics,
+
 
 }
 
@@ -106,6 +115,7 @@ function getPostsByType(_type){
         var post = new posts();
         var query = new Parse.Query(post);
         query.equalTo("type", _type);
+        query.limit(1000);
         query.include('artist');
         query.include('category');
         query.include('publisher');
@@ -157,17 +167,42 @@ function getArtist(){
         var artists = Parse.Object.extend("Artist");
         var artist = new artists();
         var query = new Parse.Query(artist);
+        query.limit(1000);
         query.find().then(function(results) {
             resolve(results)
         });
     })
 }
-
+function getArtistByType(_type){
+    return new promise(function(resolve){
+        var artists = Parse.Object.extend("Artist");
+        var artist = new artists();
+        var query = new Parse.Query(artist);
+        query.equalTo("type", _type);
+        query.limit(1000);
+        query.find().then(function(results) {
+            resolve(results)
+        });
+    })
+}
 function getPublisher(){
     return new promise(function(resolve){
         var publishers = Parse.Object.extend("Publisher");
         var publisher = new publishers();
         var query = new Parse.Query(publisher);
+        query.limit(1000);
+        query.find().then(function(results) {
+            resolve(results)
+        });
+    })
+}
+function getPublisherByType(_type){
+    return new promise(function(resolve){
+        var publishers = Parse.Object.extend("Publisher");
+        var publisher = new publishers();
+        var query = new Parse.Query(publisher);
+        query.equalTo("type", _type);
+        query.limit(1000);
         query.find().then(function(results) {
             resolve(results)
         });
@@ -179,6 +214,21 @@ function getCategory(){
         var categories = Parse.Object.extend("Category");
         var category = new categories();
         var query = new Parse.Query(category);
+        query.limit(1000);
+        query.find().then(function(results) {
+            resolve(results)
+        });
+    })
+}
+
+
+function getCategoryByType(_type){
+    return new promise(function(resolve){
+        var categories = Parse.Object.extend("Category");
+        var category = new categories();
+        var query = new Parse.Query(category);
+        query.equalTo("type", _type);
+        query.limit(1000);
         query.find().then(function(results) {
             resolve(results)
         });
@@ -376,57 +426,32 @@ function updatePost(_id ,
                     _new_is_archive
                     ) {
     return new promise(function (resolve) {
-        var posts = Parse.Object.extend("Post");
-        var post = new posts();
+        var Post = Parse.Object.extend("Post");
+        var post = new Post();
         var query = new Parse.Query(post);
         query.equalTo("objectId", _id);
         query.find().then(function (results) {
-            if(_new_title){
-                results[0].set("title",_new_title);
-                results[0].save();
-            }
-            if(_new_description){
-                results[0].set("description",_new_description);
-                results[0].save();
-            }
-            if(_new_properties){
-                results[0].set("properties",_new_properties);
-                results[0].save();
-            }
-           /* if(_new_cover){
-                results[0].set("cover",_new_cover);
-                results[0].save();
-            }*/
+            results[0].set("title",_new_title);
+            results[0].set("description",_new_description);
+            results[0].set("properties",_new_properties);
+            results[0].set("is_archive",_new_is_archive);
             if(_new_category){
-                
                 var Category = Parse.Object.extend("Category");
                 var category = Category.createWithoutData(_new_category);
                 results[0].set("category",category);
-                results[0].save();
             }
             if(_new_publisher){
                 var Publisher = Parse.Object.extend("Publisher");
                 var publisher = Publisher.createWithoutData(_new_publisher);
                 results[0].set("publisher",publisher);
-                results[0].save();
             }
             if(_new_artist){
-                
                 var Artist = Parse.Object.extend("Artist");
                 var artist = Artist.createWithoutData(_new_artist);
                 results[0].set("artist",artist);
-                results[0].save();
-               
             }
+            results[0].save();
             
-           /* if(_new_is_offer){
-                results[0].set("is_offer",_new_is_offer);
-                results[0].save();
-            }*/
-            if(_new_is_archive){
-                results[0].set("is_archive",_new_is_archive);
-                results[0].save();
-            }
             resolve(results)
         })
     })
@@ -590,7 +615,7 @@ function deleteCategory(id){
 
 }
 
-function getComments(){
+function getAllComments(){
     return new promise(function(resolve){
         var Comment = Parse.Object.extend("Comment");
         var comment = new Comment();
@@ -601,6 +626,36 @@ function getComments(){
         });
     })
 }
+
+
+function getArchivedComments(){
+    return new promise(function(resolve){
+        var Comment = Parse.Object.extend("Comment");
+        var comment = new Comment();
+        var query = new Parse.Query(comment);
+        query.equalTo("is_archive", true)
+        query.include('user');
+        query.find().then(function(results) {
+            resolve(results)
+        });
+    })
+}
+
+
+function getPublicComments(){
+    return new promise(function(resolve){
+        var Comment = Parse.Object.extend("Comment");
+        var comment = new Comment();
+        var query = new Parse.Query(comment);
+        query.equalTo("is_archive", false)
+        query.include('user');
+        query.find().then(function(results) {
+            resolve(results)
+        });
+    })
+}
+
+
 function archiveComment(_id){
     return new promise(function(resolve){
         var Comment = Parse.Object.extend("Comment");
@@ -612,6 +667,66 @@ function archiveComment(_id){
                 is_archive:true
             })
             resolve(results)
+        });
+
+    })
+
+}
+
+function unArchiveComment(_id){
+    return new promise(function(resolve){
+        var Comment = Parse.Object.extend("Comment");
+        var comment = new Comment();
+        var query = new Parse.Query(comment);
+        query.equalTo("objectId", _id)
+        query.find().then(function(results) {
+            results[0].save({
+                is_archive:false
+            })
+            resolve(results)
+        });
+
+    })
+
+}
+
+
+
+function publisherAnalytics(_publisher){
+    return new promise(function(resolve){
+
+        var Publisher = Parse.Object.extend("Publisher");
+        var publisher = new Publisher();
+        var innerQ = new Parse.Query(publisher);
+        innerQ.equalTo("title", _publisher)
+        var Post = Parse.Object.extend("Post");
+        var post = new Post();
+        var query = new Parse.Query(post);
+        query.matchesQuery("publisher", innerQ);
+        query.find({
+            success: function(results) {
+                resolve(results)
+            }
+        });
+
+    })
+
+}
+
+function artistAnalytics(_artist){
+    return new promise(function(resolve){
+        var Artist = Parse.Object.extend("Artist");
+        var artist = new Artist();
+        var innerQ = new Parse.Query(artist);
+        innerQ.equalTo("title", _artist)
+        var Post = Parse.Object.extend("Post");
+        var post = new Post();
+        var query = new Parse.Query(post);
+        query.matchesQuery("artist", innerQ);
+        query.find({
+            success: function(results) {
+                resolve(results)
+            }
         });
 
     })

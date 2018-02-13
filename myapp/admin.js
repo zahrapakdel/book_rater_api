@@ -48,6 +48,22 @@ app.get('/api/v1/PostsByType/:type',function(req,res){
     } );
 });
 
+app.get('/api/v1/ArtistByType/:type',function(req,res){
+    Element.getArtistByType(req.params.type).then(function(result) {
+        res.send(result);
+    } );
+});
+app.get('/api/v1/PublisherByType/:type',function(req,res){
+    Element.getPublisherByType(req.params.type).then(function(result) {
+        res.send(result);
+    } );
+});
+app.get('/api/v1/CategoryByType/:type',function(req,res){
+    Element.getCategoryByType(req.params.type).then(function(result) {
+        res.send(result);
+    } );
+});
+
 app.get('/api/v1/PostsByCategory/:category',function(req,res){
     Element.getPostsByCategory(req.params.category).then(function(result) {
         res.send(result);
@@ -88,11 +104,24 @@ app.get('/api/v1/artist',function(req,res){
 });
 
 
-app.get('/api/v1/comment',function(req,res){
-    Element.getComments().then(function(result) {
+app.get('/api/v1/comment/all',function(req,res){
+    Element.getAllComments().then(function(result) {
         res.send(result);
     } );
 });
+
+app.get('/api/v1/comment/archived',function(req,res){
+    Element.getArchivedComments().then(function(result) {
+        res.send(result);
+    } );
+});
+
+app.get('/api/v1/comment/public',function(req,res){
+    Element.getPublicComments().then(function(result) {
+        res.send(result);
+    } );
+});
+
 
 app.post('/api/v1/comment/archive',function(req,res){
     var body = '';
@@ -100,6 +129,39 @@ app.post('/api/v1/comment/archive',function(req,res){
     req.on('end', function(data) {
         req.body = JSON.parse(body);
         Element.archiveComment(req.body.objectId).then(function(result) {
+            res.send(result);
+        } );
+    });
+});
+
+app.post('/api/v1/comment/unarchive',function(req,res){
+    var body = '';
+    req.on('data',function(data) { body += data; });
+    req.on('end', function(data) {
+        req.body = JSON.parse(body);
+        Element.unArchiveComment(req.body.objectId).then(function(result) {
+            res.send(result);
+        } );
+    });
+});
+
+app.post('/api/v1/publisher/analytics',function(req,res){
+    var body = '';
+    req.on('data',function(data) { body += data; });
+    req.on('end', function(data) {
+        req.body = JSON.parse(body);
+        Element.publisherAnalytics(req.body.publisher).then(function(result) {
+            res.send(result);
+        } );
+    });
+});
+
+app.post('/api/v1/artist/analytics',function(req,res){
+    var body = '';
+    req.on('data',function(data) { body += data; });
+    req.on('end', function(data) {
+        req.body = JSON.parse(body);
+        Element.artistAnalytics(req.body.artist).then(function(result) {
             res.send(result);
         } );
     });
