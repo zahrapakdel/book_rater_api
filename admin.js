@@ -4,9 +4,11 @@
 var express= require('express');
 var bodyParser=require('body-parser');
 var app =express();
-var Element=require('../myapp/adminController');
+var adminCtrl=require('./controller/adminController');
 var ParseDashboard = require('parse-dashboard');
-var Parse = require('parse/node');Parse.serverURL = "http://localhost:1337/parse";var dashboard = new ParseDashboard({
+var Parse = require('parse/node');Parse.serverURL = "http://localhost:1337/parse";
+/*
+var dashboard = new ParseDashboard({
     "apps": [
         {
             "serverURL": "http://localhost:1337/parse",
@@ -16,8 +18,7 @@ var Parse = require('parse/node');Parse.serverURL = "http://localhost:1337/parse
         }
     ]
 });
-Parse.initialize("test","");
-
+*/
 
 app.use('/dashboard', dashboard);
 app.use(bodyParser.json());
@@ -28,7 +29,7 @@ app.post('/api/v1/users/login',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.login(req.body.email,req.body.password).then(function(result) {
+        adminCtrl.login(req.body.email,req.body.password).then(function(result) {
             res.send(result);
         } );
     });
@@ -37,87 +38,87 @@ app.post('/api/v1/users/login',function(req,res){
 
 
 app.get('/api/v1/Posts',function(req,res){
-    Element.getPosts().then(function(result) {
+    adminCtrl.getPosts().then(function(result) {
         res.send(result);
     } );
 });
 
 app.get('/api/v1/PostsByType/:type',function(req,res){
-    Element.getPostsByType(req.params.type).then(function(result) {
+    adminCtrl.getPostsByType(req.params.type).then(function(result) {
         res.send(result);
     } );
 });
 
 app.get('/api/v1/ArtistByType/:type',function(req,res){
-    Element.getArtistByType(req.params.type).then(function(result) {
+    adminCtrl.getArtistByType(req.params.type).then(function(result) {
         res.send(result);
     } );
 });
 app.get('/api/v1/PublisherByType/:type',function(req,res){
-    Element.getPublisherByType(req.params.type).then(function(result) {
+    adminCtrl.getPublisherByType(req.params.type).then(function(result) {
         res.send(result);
     } );
 });
 app.get('/api/v1/CategoryByType/:type',function(req,res){
-    Element.getCategoryByType(req.params.type).then(function(result) {
+    adminCtrl.getCategoryByType(req.params.type).then(function(result) {
         res.send(result);
     } );
 });
 
 app.get('/api/v1/PostsByCategory/:category',function(req,res){
-    Element.getPostsByCategory(req.params.category).then(function(result) {
+    adminCtrl.getPostsByCategory(req.params.category).then(function(result) {
         res.send(result);
     } );
 });
 
 app.get('/api/v1/PostsByArtist/:artist',function(req,res){
-    Element.getPostsByArtist(req.params.artist).then(function(result) {
+    adminCtrl.getPostsByArtist(req.params.artist).then(function(result) {
         res.send(result);
     } );
 });
 
 app.get('/api/v1/Post/:id',function(req,res){
-    Element.getPostById(req.params.id).then(function(result) {
+    adminCtrl.getPostById(req.params.id).then(function(result) {
         res.send(result);
     } );
 });
 
 
 app.get('/api/v1/category',function(req,res){
-    Element.getCategory().then(function(result) {
+    adminCtrl.getCategory().then(function(result) {
         res.send(result);
     } );
 });
 
 
 app.get('/api/v1/publisher',function(req,res){
-    Element.getPublisher().then(function(result) {
+    adminCtrl.getPublisher().then(function(result) {
         res.send(result);
     } );
 });
 
 
 app.get('/api/v1/artist',function(req,res){
-    Element.getArtist().then(function(result) {
+    adminCtrl.getArtist().then(function(result) {
         res.send(result);
     } );
 });
 
 
 app.get('/api/v1/comment/all',function(req,res){
-    Element.getAllComments().then(function(result) {
+    adminCtrl.getAllComments().then(function(result) {
         res.send(result);
     } );
 });
 
 app.get('/api/v1/comment/archived',function(req,res){
-    Element.getArchivedComments().then(function(result) {
+    adminCtrl.getArchivedComments().then(function(result) {
         res.send(result);
     } );
 });
 
 app.get('/api/v1/comment/public',function(req,res){
-    Element.getPublicComments().then(function(result) {
+    adminCtrl.getPublicComments().then(function(result) {
         res.send(result);
     } );
 });
@@ -128,7 +129,7 @@ app.post('/api/v1/comment/archive',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.archiveComment(req.body.objectId).then(function(result) {
+        adminCtrl.archiveComment(req.body.objectId).then(function(result) {
             res.send(result);
         } );
     });
@@ -139,7 +140,7 @@ app.post('/api/v1/comment/unarchive',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.unArchiveComment(req.body.objectId).then(function(result) {
+        adminCtrl.unArchiveComment(req.body.objectId).then(function(result) {
             res.send(result);
         } );
     });
@@ -150,7 +151,7 @@ app.post('/api/v1/publisher/analytics',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.publisherAnalytics(req.body.publisher).then(function(result) {
+        adminCtrl.publisherAnalytics(req.body.publisher).then(function(result) {
             res.send(result);
         } );
     });
@@ -161,7 +162,7 @@ app.post('/api/v1/artist/analytics',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.artistAnalytics(req.body.artist).then(function(result) {
+        adminCtrl.artistAnalytics(req.body.artist).then(function(result) {
             res.send(result);
         } );
     });
@@ -173,8 +174,8 @@ app.post('/api/v1/post/insert',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        
-        Element.addPost(
+
+        adminCtrl.addPost(
             req.body.title,
             req.body.description,
             req.body.properties,
@@ -204,7 +205,7 @@ app.post('/api/v1/category/insert',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.addCategory(req.body.title,req.body.description,req.body.type).then(function(result) {
+        adminCtrl.addCategory(req.body.title,req.body.description,req.body.type).then(function(result) {
             res.send(result);
         } );
     });
@@ -215,7 +216,7 @@ app.post('/api/v1/publisher/insert',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.addPublisher(req.body.title,req.body.description,req.body.type).then(function(result) {
+        adminCtrl.addPublisher(req.body.title,req.body.description,req.body.type).then(function(result) {
             res.send(result);
         } );
     });
@@ -226,7 +227,7 @@ app.post('/api/v1/artist/insert',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.addArtist(req.body.title,req.body.description,req.body.type).then(function(result) {
+        adminCtrl.addArtist(req.body.title,req.body.description,req.body.type).then(function(result) {
             res.send(result);
         } ); 
     });
@@ -238,8 +239,8 @@ app.post('/api/v1/post/edit',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        
-        Element.updatePost(req.body.objectId,
+
+        adminCtrl.updatePost(req.body.objectId,
             req.body.title,
             req.body.description,
             req.body.properties,
@@ -259,7 +260,7 @@ app.post('/api/v1/category/edit',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.updateCategory(req.body.objectId,req.body.title,req.body.description,req.body.type).then(function(result) {
+        adminCtrl.updateCategory(req.body.objectId,req.body.title,req.body.description,req.body.type).then(function(result) {
             res.send(result);
         } );
     });
@@ -270,7 +271,7 @@ app.post('/api/v1/publisher/edit',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.updatePublisher(req.body.objectId,req.body.title,req.body.description ,req.body.type).then(function(result) {
+        adminCtrl.updatePublisher(req.body.objectId,req.body.title,req.body.description ,req.body.type).then(function(result) {
             res.send(result);
         } );
     });
@@ -281,7 +282,7 @@ app.post('/api/v1/artist/edit',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.updateArtist(req.body.objectId,req.body.title,req.body.description,req.body.type ).then(function(result) {
+        adminCtrl.updateArtist(req.body.objectId,req.body.title,req.body.description,req.body.type ).then(function(result) {
             res.send(result);
         } );
     });
@@ -292,7 +293,7 @@ app.post('/api/v1/post/delete',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.deletePost(req.body.objectId).then(function(result) {
+        adminCtrl.deletePost(req.body.objectId).then(function(result) {
             res.send(result);
         } );
     });
@@ -303,7 +304,7 @@ app.post('/api/v1/category/delete',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.deleteCategory(req.body.objectId).then(function(result) {
+        adminCtrl.deleteCategory(req.body.objectId).then(function(result) {
             res.send(result);
         } );
     });
@@ -314,7 +315,7 @@ app.post('/api/v1/publisher/delete',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.deletePublisher(req.body.objectId).then(function(result) {
+        adminCtrl.deletePublisher(req.body.objectId).then(function(result) {
             res.send(result);
         } );
     });
@@ -325,7 +326,7 @@ app.post('/api/v1/artist/delete',function(req,res){
     req.on('data',function(data) { body += data; });
     req.on('end', function(data) {
         req.body = JSON.parse(body);
-        Element.deleteArtist(req.body.objectId).then(function(result) {
+        adminCtrl.deleteArtist(req.body.objectId).then(function(result) {
             res.send(result);
         } );
     });
